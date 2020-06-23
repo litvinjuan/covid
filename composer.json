@@ -17,6 +17,7 @@
         "predis/predis": "^1.1"
     },
     "require-dev": {
+        "brainmaestro/composer-git-hooks": "^2.8",
         "facade/ignition": "^2.0",
         "fzaninotto/faker": "^1.9.1",
         "mockery/mockery": "^1.3.1",
@@ -31,6 +32,16 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "hooks": {
+            "pre-commit": [
+                "php-cs-fixer fix .",
+                "./vendor/bin/phpunit"
+            ],
+            "pre-push": [
+                "php-cs-fixer fix --dry-run ."
+            ],
+            "post-merge": "composer install"
         }
     },
     "autoload": {
@@ -55,8 +66,8 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
-        "test": [
-            "./vendor/bin/phpunit"
-        ]
+        "post-install-cmd": "cghooks add --ignore-lock",
+        "post-update-cmd": "cghooks update",
+        "test": "./vendor/bin/phpunit"
     }
 }
