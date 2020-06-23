@@ -12,5 +12,6 @@ $factory->define(Product::class, function (Faker $faker) {
         'title' => $faker->sentence(4),
         'sku' => $faker->randomLetter . " " . $faker->randomNumber(3, true),
         'price' => $faker->numberBetween(100, 100000),
+        'stock' => $faker->numberBetween(0, 100),
     ];
 });

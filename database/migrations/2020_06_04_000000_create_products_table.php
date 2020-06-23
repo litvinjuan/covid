@@ -20,6 +20,7 @@ class CreateProductsTable extends Migration
             $table->string('title');
             $table->string('sku');
             $table->bigInteger('price');
+            $table->bigInteger('stock')->default(0);
 
             $table->softDeletes();
             $table->timestamps();

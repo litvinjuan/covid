@@ -13,6 +13,7 @@ class ProductController extends Controller
             'title' => request('title'),
             'sku' => request('sku'),
             'price' => (int) (request('price') * 100),
+            'stock' => request('stock', 0),
         ]);
 
         return redirect("/products/{$product->id}");
@@ -24,6 +25,7 @@ class ProductController extends Controller
             'title' => request('title'),
             'sku' => request('sku'),
             'price' => (int) (request('price') * 100),
+            'stock' => request('stock'),
         ]);
 
         return redirect("/products/{$product->id}");
