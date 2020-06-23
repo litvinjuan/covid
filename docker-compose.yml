@@ -26,6 +26,9 @@ services:
     build:
       context: ./docker/php
       dockerfile: Dockerfile
+      args:
+        GROUP_ID: 1
+        USER_ID: 1
     container_name: php
     volumes:
       - .:/var/www/html
