@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::prefix('/cart')->group(function () {
+    Route::post('/', 'CartController@add');
+    Route::put('/{product}', 'CartController@update');
+    Route::delete('/{product}', 'CartController@delete');
+});
+
 Route::prefix('/products')->group(function () {
     Route::post('/', 'ProductController@create');
     Route::get('/{product}', 'ProductController@view');

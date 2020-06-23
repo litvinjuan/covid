@@ -4,11 +4,11 @@
 
 use Faker\Generator as Faker;
 use Store\Models\Product;
-use Store\Models\User;
+use Store\Models\Supplier;
 
 $factory->define(Product::class, function (Faker $faker) {
     return [
-        'owner_id' => factory(User::class),
+        'supplier_id' => factory(Supplier::class),
         'title' => $faker->sentence(4),
         'sku' => $faker->randomLetter . " " . $faker->randomNumber(3, true),
         'price' => $faker->numberBetween(100, 100000),

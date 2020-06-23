@@ -9,7 +9,7 @@ class ProductController extends Controller
     public function create()
     {
         $product = Product::query()->create([
-            'owner_id' => auth()->user()->id,
+            'supplier_id' => auth()->user()->id,
             'title' => request('title'),
             'sku' => request('sku'),
             'price' => (int) (request('price') * 100),
