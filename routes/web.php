@@ -22,8 +22,8 @@ Route::prefix('/cart')->group(function () {
 Route::prefix('/products')->group(function () {
     Route::post('/', 'ProductController@create');
     Route::get('/{product}', 'ProductController@view');
-    Route::post('/{product}/update', 'ProductController@update');
-    Route::post('/{product}/delete', 'ProductController@delete');
+    Route::put('/{product}', 'ProductController@update');
+    Route::delete('/{product}', 'ProductController@delete');
 });
 
 Route::prefix('/')->group(function () {

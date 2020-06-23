@@ -41,7 +41,7 @@ class ProductStockTest extends TestCase
     {
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($product->supplier)->post("/products/{$product->id}/update", [
+        $response = $this->actingAs($product->supplier)->put("/products/{$product->id}", [
             'title' => 'My New Product Title',
             'sku' => 'a0002',
             'price' => 299.99,

@@ -34,7 +34,7 @@ class ProductTest extends TestCase
     {
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($product->supplier)->post("/products/{$product->id}/update", [
+        $response = $this->actingAs($product->supplier)->put("/products/{$product->id}", [
             'title' => 'My New Product Title',
             'sku' => 'a0002',
             'price' => 299.99,
@@ -53,7 +53,7 @@ class ProductTest extends TestCase
     {
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($product->supplier)->post("/products/{$product->id}/delete");
+        $response = $this->actingAs($product->supplier)->delete("/products/{$product->id}");
 
         $response->assertRedirect('/products');
         $this->assertCount(0, Product::all());
