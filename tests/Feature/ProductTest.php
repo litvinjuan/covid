@@ -17,18 +17,20 @@ class ProductTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user)->post('/products/create', [
+        $response = $this->actingAs($user)->post('/products', [
             'title' => 'My Product Title',
             'sku' => 'a0001',
             'price' => 19999, // 199,99
         ]);
 
-        $response->assertRedirect('/products');
+        $product = Product::first();
+        $this->assertNotNull($product);
+        $response->assertRedirect("/products/{$product->id}");
         $this->assertCount(1, Product::all());
-        $this->assertEquals($user->id, Product::first()->owner->id);
-        $this->assertEquals('My Product Title', Product::first()->title);
-        $this->assertEquals('a0001', Product::first()->sku);
-        $this->assertEquals(19999, Product::first()->price);
+        $this->assertEquals($user->id, $product->owner->id);
+        $this->assertEquals('My Product Title', $product->title);
+        $this->assertEquals('a0001', $product->sku);
+        $this->assertEquals(19999, $product->price);
     }
 
     /** @test */
@@ -60,8 +62,6 @@ class ProductTest extends TestCase
 
         $response->assertRedirect('/products');
         $this->assertCount(0, Product::all());
-        $this->assertEquals('My New Product Title', Product::first()->title);
-        $this->assertEquals('a0002', Product::first()->sku);
-        $this->assertEquals(29999, Product::first()->price);
+        $this->assertDatabaseCount('products', 1);
     }
 }
