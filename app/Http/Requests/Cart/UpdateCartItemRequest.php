@@ -19,6 +19,4 @@ class UpdateCartItemRequest extends FormRequest
     {
         return $this->input(self::QUANTITY);
     }
-
-
 }

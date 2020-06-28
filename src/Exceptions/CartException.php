@@ -4,7 +4,6 @@ namespace Store\Exceptions;
 
 class CartException extends \Exception
 {
-
     public static function productOutOfstock(): self
     {
         return new static('El producto está fuera de stock');
@@ -14,5 +13,4 @@ class CartException extends \Exception
     {
         return new static('El producto no tiene suficiente stock');
     }
-
 }

@@ -8,7 +8,6 @@ use Store\Models\Product;
 
 trait HasCartItems
 {
-
     public function addItem(Product $product, int $quantity): CartItem
     {
         /** @var CartItem $item */
@@ -52,5 +51,4 @@ trait HasCartItems
 
         return $item;
     }
-
 }
