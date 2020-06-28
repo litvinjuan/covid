@@ -65,6 +65,35 @@ class CartTest extends TestCase
     }
 
     /** @test */
+    public function testProductsCanBeAddedTwiceToCart()
+    {
+        $user = factory(Customer::class)->create();
+        $product = factory(Product::class)->create();
+
+        $response = $this->actingAs($user)->post("/cart", [
+            'product' => $product->id,
+            'quantity' => 3,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertCount(1, $user->cart->items);
+        $this->assertEquals($product->id, $user->cart->items->first()->product->id);
+        $this->assertEquals(3, $user->cart->items->first()->quantity);
+
+        $response = $this->actingAs($user)->post("/cart", [
+            'product' => $product->id,
+            'quantity' => 4,
+        ]);
+
+        $user->load(['cart.items']); // Reload items so the new one is fetched
+
+        $response->assertRedirect();
+        $this->assertCount(1, $user->cart->items);
+        $this->assertEquals($product->id, $user->cart->items->first()->product->id);
+        $this->assertEquals(7, $user->cart->items->first()->quantity);
+    }
+
+    /** @test */
     public function testProductCanBeRemovedFromCart()
     {
         $user = factory(Customer::class)->create();
