@@ -4,7 +4,6 @@ namespace Store\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Store\Events\CartItemLowOnStock;
 use Store\Events\CartItemProductNotEnoughStock;
 
@@ -28,7 +27,7 @@ class Product extends Model
         return $this->stock === 0;
     }
 
-    public function updateStock($stock)
+    public function setStockAttribute($stock)
     {
         CartItem::query()
             ->where('quantity', '>', $stock)
@@ -47,6 +46,6 @@ class Product extends Model
                 event(new CartItemLowOnStock($item));
             });
 
-        $this->update(['stock' => $stock]);
+        $this->attributes['stock'] = $stock;
     }
 }

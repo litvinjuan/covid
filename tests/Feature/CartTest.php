@@ -8,7 +8,6 @@ use Store\Events\CartItemProductNotEnoughStock;
 use Store\Models\CartItem;
 use Store\Models\Customer;
 use Store\Models\Product;
-use Store\Models\User;
 use Tests\TestCase;
 
 class CartTest extends TestCase
@@ -26,7 +25,7 @@ class CartTest extends TestCase
             'quantity' => 1,
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect('/carrito');
         $this->assertCount(1, CartItem::all());
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
@@ -44,7 +43,7 @@ class CartTest extends TestCase
             'quantity' => 1,
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
         $this->assertEquals(1, $user->cart->items->first()->quantity);
@@ -58,7 +57,7 @@ class CartTest extends TestCase
 
         $user->load(['cart.items']); // Reload items so the new one is fetched
 
-        $response->assertRedirect();
+        $response->assertRedirect('/carrito');
         $this->assertCount(2, $user->cart->items);
         $this->assertEquals($product2->id, $user->cart->items->get(1)->product->id);
         $this->assertEquals(5, $user->cart->items->get(1)->quantity);
@@ -75,7 +74,7 @@ class CartTest extends TestCase
             'quantity' => 3,
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
         $this->assertEquals(3, $user->cart->items->first()->quantity);
@@ -87,7 +86,7 @@ class CartTest extends TestCase
 
         $user->load(['cart.items']); // Reload items so the new one is fetched
 
-        $response->assertRedirect();
+        $response->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
         $this->assertEquals(7, $user->cart->items->first()->quantity);
@@ -102,14 +101,14 @@ class CartTest extends TestCase
         $this->actingAs($user)->post("/cart", [
             'product' => $product->id,
             'quantity' => 1,
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
         $this->actingAs($user)->post("/cart", [
             'product' => $product2->id,
             'quantity' => 1,
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
         $this->assertCount(2, $user->cart->items);
 
-        $this->actingAs($user)->delete("/cart/{$product->id}")->assertRedirect();
+        $this->actingAs($user)->delete("/cart/{$product->id}")->assertRedirect('/carrito');
 
         $user->load('cart.items'); // Reload items so the new one is fetched
 
@@ -125,12 +124,12 @@ class CartTest extends TestCase
         $this->actingAs($user)->post("/cart", [
             'product' => $product->id,
             'quantity' => 1,
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
 
         $this->actingAs($user)->put("/cart/{$product->id}", [
             'quantity' => 5,
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
 
         $user->load('cart.items'); // Reload items so the new one is fetched
 
@@ -149,7 +148,7 @@ class CartTest extends TestCase
             'quantity' => 1,
         ]);
 
-        $response->assertSessionHasErrors('stock');
+        $response->assertSessionHasErrors();
         $this->assertCount(0, $user->cart->items);
         $this->assertDatabaseCount('cart_items', 0);
     }
@@ -165,7 +164,7 @@ class CartTest extends TestCase
             'quantity' => 8, // More than current stock
         ]);
 
-        $response->assertSessionHasErrors('quantity');
+        $response->assertSessionHasErrors();
         $this->assertCount(0, $user->cart->items);
         $this->assertDatabaseCount('cart_items', 0);
     }
@@ -178,12 +177,12 @@ class CartTest extends TestCase
         $this->actingAs($user)->post("/cart", [
             'product' => $product->id,
             'quantity' => 1, // Enough Stock
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
 
         $this->actingAs($user)->put("/cart/{$product->id}", [
             'quantity' => 5, // Not Enough Stock
-        ])->assertSessionHasErrors('quantity');
+        ])->assertSessionHasErrors();
 
         $user->load('cart.items');
 
@@ -199,11 +198,11 @@ class CartTest extends TestCase
         $this->actingAs($user)->post("/cart", [
             'product' => $product->id,
             'quantity' => 20, // Enough Stock
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
 
         $this->expectsEvents(CartItemProductNotEnoughStock::class);
-        $product->updateStock(10); // Cart's quantity is above the product's stock
+        $product->update(['stock' => 10]); // Cart's quantity is above the product's stock
     }
 
     /** @test */
@@ -214,13 +213,13 @@ class CartTest extends TestCase
         $this->actingAs($user)->post("/cart", [
             'product' => $product->id,
             'quantity' => 10,
-        ])->assertRedirect();
+        ])->assertRedirect('/carrito');
         $this->assertCount(1, $user->cart->items);
 
         $this->doesntExpectEvents(CartItemLowOnStock::class);
 
         // Should only be raised when there is a 20% margin or less
-        $product->updateStock(13);
+        $product->update(['stock' => 13]);
     }
 
     /** @test */
@@ -237,7 +236,7 @@ class CartTest extends TestCase
         $this->expectsEvents(CartItemLowOnStock::class);
 
         // Should only be raised when there is a 20% margin or less
-        $product->updateStock(12);
+        $product->update(['stock' => 12]);
     }
 
     private function data()

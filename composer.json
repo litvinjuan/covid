@@ -51,6 +51,9 @@
             "App\\": "app/",
             "Store\\": "src/"
         },
+        "files": [
+            "bootstrap/helpers.php"
+        ],
         "classmap": [
             "database/seeds",
             "database/factories"

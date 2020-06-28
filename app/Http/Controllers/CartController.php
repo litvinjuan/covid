@@ -2,69 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use Store\Models\CartItem;
+use App\Http\Requests\Cart\AddToCartRequest;
+use App\Http\Requests\Cart\UpdateCartItemRequest;
+use Store\Exceptions\CartException;
 use Store\Models\Product;
 
 class CartController extends Controller
 {
-    public function add()
+    public function add(AddToCartRequest $request)
     {
-        $product = Product::query()->findOrFail(request('product'));
-        $quantity = request('quantity', 1);
-
-        $item = auth()->user()
-            ->cart
-            ->items()
-            ->firstOrNew(['product_id' => $product->id], ['quantity' => 0]);
-
-        $item->quantity += $quantity; // Set new quantity or add to previous one if available
-
-        if ($product->outOfStock()) {
-            return redirect()->back()->withErrors(['stock' => 'El producto está fuera de stock. Por favor, seleccioná otro.']);
+        try {
+            current_customer()->cart->addItem($request->product(), $request->quantity());
+        } catch (CartException $exception) {
+            return redirect()->back()->withErrors([$exception->getMessage()]);
         }
-
-        if ($product->stock < $quantity) {
-            return redirect()->back()->withErrors(['quantity' => 'No hay stock suficiente para este producto']);
-        }
-
-        $item->save();
 
         return redirect("/carrito");
     }
 
-    public function update(Product $product)
+    public function update(Product $product, UpdateCartItemRequest $request)
     {
-        $quantity = request('quantity');
-
-        /** @var CartItem $item */
-        $item = auth()->user()
-            ->cart
-            ->items()
-            ->whereProductId($product->id)
-            ->firstOrFail();
-
-        if ($product->outOfStock()) {
-            return redirect()->back()->withErrors(['stock' => 'El producto está fuera de stock. Por favor, seleccioná otro.']);
+        try {
+            current_customer()->cart->updateItem($product, $request->quantity());
+        } catch (CartException $exception) {
+            return redirect()->back()->withErrors([$exception->getMessage()]);
         }
-
-        if ($product->stock < $quantity) {
-            return redirect()->back()->withErrors(['quantity' => 'No hay stock suficiente para este producto']);
-        }
-
-        $item->update([
-            'quantity' => $quantity,
-        ]);
 
         return redirect("/carrito");
     }
 
     public function delete(Product $product)
     {
-        auth()->user()
-            ->cart
-            ->items()
-            ->whereProductId($product->id)
-            ->delete();
+        try {
+            current_customer()->cart->deleteItem($product);
+        } catch (CartException $exception) {
+            return redirect()->back()->withErrors([$exception->getMessage()]);
+        }
 
         return redirect('/carrito');
     }
