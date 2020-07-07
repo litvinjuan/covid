@@ -20,12 +20,12 @@ class CartTest extends TestCase
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 1,
         ]);
 
-        $response->assertRedirect('/carrito');
+        $response->assertRedirect(route('cart.view'));
         $this->assertCount(1, CartItem::all());
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
@@ -38,26 +38,26 @@ class CartTest extends TestCase
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 1,
         ]);
 
-        $response->assertRedirect('/carrito');
+        $response->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
         $this->assertEquals(1, $user->cart->items->first()->quantity);
 
         $product2 = factory(Product::class)->create(['stock' => 20]);
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product2->id,
             'quantity' => 5,
         ]);
 
         $user->load(['cart.items']); // Reload items so the new one is fetched
 
-        $response->assertRedirect('/carrito');
+        $response->assertRedirect(route('cart.view'));
         $this->assertCount(2, $user->cart->items);
         $this->assertEquals($product2->id, $user->cart->items->get(1)->product->id);
         $this->assertEquals(5, $user->cart->items->get(1)->quantity);
@@ -69,24 +69,24 @@ class CartTest extends TestCase
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 3,
         ]);
 
-        $response->assertRedirect('/carrito');
+        $response->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
         $this->assertEquals(3, $user->cart->items->first()->quantity);
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 4,
         ]);
 
         $user->load(['cart.items']); // Reload items so the new one is fetched
 
-        $response->assertRedirect('/carrito');
+        $response->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
         $this->assertEquals($product->id, $user->cart->items->first()->product->id);
         $this->assertEquals(7, $user->cart->items->first()->quantity);
@@ -98,17 +98,17 @@ class CartTest extends TestCase
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create();
         $product2 = factory(Product::class)->create();
-        $this->actingAs($user)->post("/cart", [
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 1,
-        ])->assertRedirect('/carrito');
-        $this->actingAs($user)->post("/cart", [
+        ])->assertRedirect(route('cart.view'));
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product2->id,
             'quantity' => 1,
-        ])->assertRedirect('/carrito');
+        ])->assertRedirect(route('cart.view'));
         $this->assertCount(2, $user->cart->items);
 
-        $this->actingAs($user)->delete("/cart/{$product->id}")->assertRedirect('/carrito');
+        $this->actingAs($user)->delete(route('cart.delete', ['product' => $product]))->assertRedirect(route('cart.view'));
 
         $user->load('cart.items'); // Reload items so the new one is fetched
 
@@ -121,15 +121,15 @@ class CartTest extends TestCase
     {
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 20]);
-        $this->actingAs($user)->post("/cart", [
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 1,
-        ])->assertRedirect('/carrito');
+        ])->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
 
-        $this->actingAs($user)->put("/cart/{$product->id}", [
+        $this->actingAs($user)->put(route('cart.update', ['product' => $product]), [
             'quantity' => 5,
-        ])->assertRedirect('/carrito');
+        ])->assertRedirect(route('cart.view'));
 
         $user->load('cart.items'); // Reload items so the new one is fetched
 
@@ -143,7 +143,7 @@ class CartTest extends TestCase
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 0]);
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 1,
         ]);
@@ -159,7 +159,7 @@ class CartTest extends TestCase
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 5]);
 
-        $response = $this->actingAs($user)->post("/cart", [
+        $response = $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 8, // More than current stock
         ]);
@@ -174,13 +174,13 @@ class CartTest extends TestCase
     {
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 3]);
-        $this->actingAs($user)->post("/cart", [
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 1, // Enough Stock
-        ])->assertRedirect('/carrito');
+        ])->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
 
-        $this->actingAs($user)->put("/cart/{$product->id}", [
+        $this->actingAs($user)->put(route('cart.update', ['product' => $product]), [
             'quantity' => 5, // Not Enough Stock
         ])->assertSessionHasErrors();
 
@@ -195,10 +195,10 @@ class CartTest extends TestCase
     {
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 20]);
-        $this->actingAs($user)->post("/cart", [
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 20, // Enough Stock
-        ])->assertRedirect('/carrito');
+        ])->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
 
         $this->expectsEvents(CartItemProductNotEnoughStock::class);
@@ -210,10 +210,10 @@ class CartTest extends TestCase
     {
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 20]);
-        $this->actingAs($user)->post("/cart", [
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 10,
-        ])->assertRedirect('/carrito');
+        ])->assertRedirect(route('cart.view'));
         $this->assertCount(1, $user->cart->items);
 
         $this->doesntExpectEvents(CartItemLowOnStock::class);
@@ -227,7 +227,7 @@ class CartTest extends TestCase
     {
         $user = factory(Customer::class)->create();
         $product = factory(Product::class)->create(['stock' => 20]);
-        $this->actingAs($user)->post("/cart", [
+        $this->actingAs($user)->post(route('cart.add'), [
             'product' => $product->id,
             'quantity' => 10,
         ])->assertRedirect();

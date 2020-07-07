@@ -9,6 +9,13 @@ use Store\Models\Product;
 
 class CartController extends Controller
 {
+    public function view()
+    {
+        return view('cart')
+            ->with('user', current_customer())
+            ->with('cart', current_customer()->cart);
+    }
+
     public function add(AddToCartRequest $request)
     {
         try {
@@ -17,7 +24,7 @@ class CartController extends Controller
             return redirect()->back()->withErrors([$exception->getMessage()]);
         }
 
-        return redirect("/carrito");
+        return redirect()->route('cart.view');
     }
 
     public function update(Product $product, UpdateCartItemRequest $request)
@@ -28,7 +35,7 @@ class CartController extends Controller
             return redirect()->back()->withErrors([$exception->getMessage()]);
         }
 
-        return redirect("/carrito");
+        return redirect()->route('cart.view');
     }
 
     public function delete(Product $product)
@@ -39,6 +46,6 @@ class CartController extends Controller
             return redirect()->back()->withErrors([$exception->getMessage()]);
         }
 
-        return redirect('/carrito');
+        return redirect()->route('cart.view');
     }
 }

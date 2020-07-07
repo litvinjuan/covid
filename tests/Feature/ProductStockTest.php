@@ -16,11 +16,11 @@ class ProductStockTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user)->post('/products', $this->data());
+        $response = $this->actingAs($user)->post(route('product.create'), $this->data());
 
         $product = Product::first();
         $this->assertNotNull($product);
-        $response->assertRedirect("/products/{$product->id}");
+        $response->assertRedirect(route('product.view', ['product' => $product]));
         $this->assertEquals(5, $product->stock);
     }
 
@@ -29,10 +29,10 @@ class ProductStockTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user)->post('/products', array_merge($this->data(), ['stock' => null]));
+        $response = $this->actingAs($user)->post(route('product.create'), array_merge($this->data(), ['stock' => null]));
 
         $product = Product::first();
-        $response->assertRedirect("/products/{$product->id}");
+        $response->assertRedirect(route('product.view', ['product' => $product]));
         $this->assertEquals(0, $product->stock);
     }
 
@@ -41,14 +41,14 @@ class ProductStockTest extends TestCase
     {
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($product->supplier)->put("/products/{$product->id}", [
+        $response = $this->actingAs($product->supplier)->put(route('product.update', ['product' => $product]), [
             'title' => 'My New Product Title',
             'sku' => 'a0002',
             'price' => 299.99,
             'stock' => 10,
         ]);
 
-        $response->assertRedirect("/products/{$product->id}");
+        $response->assertRedirect(route('product.view', ['product' => $product]));
         $this->assertEquals(10, Product::first()->stock);
     }
 

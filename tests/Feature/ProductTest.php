@@ -17,11 +17,11 @@ class ProductTest extends TestCase
     {
         $user = factory(Supplier::class)->create();
 
-        $response = $this->actingAs($user)->post('/products', $this->data());
+        $response = $this->actingAs($user)->post(route('product.create'), $this->data());
 
         $product = Product::first();
         $this->assertNotNull($product);
-        $response->assertRedirect("/products/{$product->id}");
+        $response->assertRedirect(route('product.view', ['product' => $product]));
         $this->assertCount(1, Product::all());
         $this->assertEquals($user->id, $product->supplier->id);
         $this->assertEquals('My Product Title', $product->title);
@@ -34,14 +34,14 @@ class ProductTest extends TestCase
     {
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($product->supplier)->put("/products/{$product->id}", [
+        $response = $this->actingAs($product->supplier)->put(route('product.update', ['product' => $product]), [
             'title' => 'My New Product Title',
             'sku' => 'a0002',
             'price' => 299.99,
             'stock' => 10,
         ]);
 
-        $response->assertRedirect("/products/{$product->id}");
+        $response->assertRedirect(route('product.view', ['product' => $product]));
         $this->assertCount(1, Product::all());
         $this->assertEquals('My New Product Title', Product::first()->title);
         $this->assertEquals('a0002', Product::first()->sku);
@@ -53,9 +53,9 @@ class ProductTest extends TestCase
     {
         $product = factory(Product::class)->create();
 
-        $response = $this->actingAs($product->supplier)->delete("/products/{$product->id}");
+        $response = $this->actingAs($product->supplier)->delete(route('product.view', ['product' => $product]));
 
-        $response->assertRedirect('/products');
+        $response->assertRedirect(route('product.list'));
         $this->assertCount(0, Product::all());
         $this->assertDatabaseCount('products', 1);
     }

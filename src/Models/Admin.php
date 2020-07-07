@@ -9,9 +9,4 @@ use Parental\HasParent;
 class Admin extends User
 {
     use HasParent;
-
-    public function loginRedirectRoute(): string
-    {
-        return '/admin';
-    }
 }

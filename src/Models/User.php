@@ -26,9 +26,4 @@ class User extends Authenticatable
         'customer' => Customer::class,
         'supplier' => Supplier::class,
     ];
-
-    public function loginRedirectRoute(): string
-    {
-        return '/';
-    }
 }
