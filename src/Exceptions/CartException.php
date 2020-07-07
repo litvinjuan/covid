@@ -6,11 +6,11 @@ class CartException extends \Exception
 {
     public static function productOutOfstock(): self
     {
-        return new static('El producto está fuera de stock');
+        return new static('This product is out of stock');
     }
 
     public static function productNotEnoughStock(): self
     {
-        return new static('El producto no tiene suficiente stock');
+        return new static('This product does not have enough stock');
     }
 }

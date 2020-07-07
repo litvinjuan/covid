@@ -20,12 +20,12 @@ class AuthTest extends TestCase
         factory(User::class)->create(['email' => 'user@test.com', 'password' => Hash::make('secret')]);
         $user = User::first();
 
-        $response = $this->post('/login', [
+        $response = $this->post(route('auth.login'), [
             'email' => 'user@test.com',
             'password' => 'secret',
         ]);
 
-        $response->assertRedirect($user->loginRedirectRoute());
+        $response->assertRedirect(route('home'));
         $this->assertAuthenticatedAs($user);
     }
 
@@ -35,12 +35,12 @@ class AuthTest extends TestCase
         /** @var User $user */
         $user = factory(Admin::class)->create();
 
-        $response = $this->post('/login', [
+        $response = $this->post(route('auth.login'), [
             'email' => $user->email,
             'password' => 'secret',
         ]);
 
-        $response->assertRedirect($user->loginRedirectRoute());
+        $response->assertRedirect(route('home'));
         $this->assertAuthenticatedAs($user);
         $this->assertInstanceOf(Admin::class, $user);
     }
@@ -51,12 +51,12 @@ class AuthTest extends TestCase
         /** @var User $user */
         $user = factory(Customer::class)->create();
 
-        $response = $this->post('/login', [
+        $response = $this->post(route('auth.login'), [
             'email' => $user->email,
             'password' => 'secret',
         ]);
 
-        $response->assertRedirect($user->loginRedirectRoute());
+        $response->assertRedirect(route('home'));
         $this->assertAuthenticatedAs($user);
         $this->assertInstanceOf(Customer::class, $user);
     }
@@ -67,12 +67,12 @@ class AuthTest extends TestCase
         /** @var User $user */
         $user = factory(Supplier::class)->create();
 
-        $response = $this->post('/login', [
+        $response = $this->post(route('auth.login'), [
             'email' => $user->email,
             'password' => 'secret',
         ]);
 
-        $response->assertRedirect($user->loginRedirectRoute());
+        $response->assertRedirect(route('home'));
         $this->assertAuthenticatedAs($user);
         $this->assertInstanceOf(Supplier::class, $user);
     }
@@ -81,21 +81,21 @@ class AuthTest extends TestCase
     public function testUsersCanLogout()
     {
         $user = factory(User::class)->create(['email' => 'user@test.com', 'password' => Hash::make('secret')]);
-        $response = $this->actingAs($user)->post('/logout');
+        $response = $this->actingAs($user)->post(route('auth.logout'));
 
-        $response->assertRedirect('/login');
+        $response->assertRedirect(route('auth.login'));
         $this->assertGuest();
     }
 
     /** @test */
     public function testUsersCanRegister()
     {
-        $response = $this->post('/register', [
+        $response = $this->post(route('auth.register'), [
             'email' => 'user@test.com',
             'password' => 'secret',
         ]);
 
-        $response->assertRedirect((new Customer())->loginRedirectRoute());
+        $response->assertRedirect(route('home'));
         $this->assertCount(1, User::all());
         $this->assertEquals('user@test.com', User::first()->email);
         $this->assertAuthenticatedAs(User::first());

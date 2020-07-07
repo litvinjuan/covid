@@ -9,9 +9,4 @@ use Parental\HasParent;
 class Supplier extends User
 {
     use HasParent;
-
-    public function loginRedirectRoute(): string
-    {
-        return '/tienda';
-    }
 }

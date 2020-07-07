@@ -2,44 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Product\CreateProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
 use Store\Models\Product;
 
 class ProductController extends Controller
 {
-    public function create()
+    public function list()
     {
-        $product = Product::query()->create([
-            'supplier_id' => auth()->user()->id,
-            'title' => request('title'),
-            'sku' => request('sku'),
-            'price' => (int) (request('price') * 100),
-            'stock' => request('stock', 0),
-        ]);
-
-        return redirect("/products/{$product->id}");
-    }
-
-    public function update(Product $product)
-    {
-        $product->update([
-            'title' => request('title'),
-            'sku' => request('sku'),
-            'price' => (int) (request('price') * 100),
-            'stock' => request('stock'),
-        ]);
-
-        return redirect("/products/{$product->id}");
+        return view('product.list');
     }
 
     public function view(Product $product)
     {
-        return view('welcome');
+        return view('product.view')
+            ->with('product', $product);
+    }
+
+    public function create(CreateProductRequest $request)
+    {
+        $product = Product::query()->create([
+            'supplier_id' => auth()->user()->id,
+            'title' => $request->title(),
+            'sku' => $request->sku(),
+            'price' => $request->price(),
+            'stock' => $request->stock(),
+        ]);
+
+        return redirect()->route('product.view', ['product' => $product]);
+    }
+
+    public function update(Product $product, UpdateProductRequest $request)
+    {
+        $product->update([
+            'title' => $request->title(),
+            'sku' => $request->sku(),
+            'price' => $request->price(),
+            'stock' => $request->stock(),
+        ]);
+
+        return redirect()->route('product.view', ['product' => $product]);
     }
 
     public function delete(Product $product)
     {
         $product->delete();
 
-        return redirect('/products');
+        return redirect()->route('product.list');
     }
 }
